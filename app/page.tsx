@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import TopBar from "./components/TopBar"
-import Sidebar from "./components/Sidebar"
-import Graph from "./components/Graph"
+import { useCallback, useEffect, useState } from "react"
 import BottomContainer from "./components/BottomContainer"
+import Graph from "./components/Graph"
+import Sidebar from "./components/Sidebar"
+import TopBar from "./components/TopBar"
 import { theme } from "./styles/theme"
 import { type Graph as GraphType, initialGraph, type Node } from "./types/graph"
+import { fetchGraph, subscribeToGraphUpdates } from "./utils/api"
 import { debounce } from "./utils/debounce"
 
 export default function Home() {
@@ -21,19 +22,10 @@ export default function Home() {
   const syncGraphWithBackend = useCallback(
     debounce(async (graphToSync: GraphType) => {
       try {
-        const response = await fetch("/api/graph", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(graphToSync),
-        })
-        if (!response.ok) {
-          throw new Error("Failed to sync graph with backend")
-        }
+        updateGraph(graphToSync)
         console.log("Graph synced with backend")
       } catch (error) {
-        console.error("Error syncing graph with backend:", error)
+        console.error("Error syncing graph with backend.")
       }
     }, 500),
     [],
@@ -56,13 +48,9 @@ export default function Home() {
   )
 
   useEffect(() => {
-    const fetchGraph = async () => {
+    const fetchInitialGraph = async () => {
       try {
-        const response = await fetch("/api/graph")
-        if (!response.ok) {
-          throw new Error("Failed to fetch graph")
-        }
-        const data = await response.json()
+        const data = await fetchGraph()
         updateGraph(data)
       } catch (error) {
         console.error("Error fetching graph:", error)
@@ -70,16 +58,14 @@ export default function Home() {
       }
     }
 
-    fetchGraph()
+    fetchInitialGraph()
 
-    const eventSource = new EventSource("/api/graph-updates")
-    eventSource.onmessage = (event) => {
-      const updatedGraph = JSON.parse(event.data)
+    const unsubscribe = subscribeToGraphUpdates((updatedGraph) => {
       updateGraph(updatedGraph)
-    }
+    })
 
     return () => {
-      eventSource.close()
+      unsubscribe()
     }
   }, [updateGraph])
 

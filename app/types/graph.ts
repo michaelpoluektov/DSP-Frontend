@@ -181,7 +181,7 @@ type VolumeControl = {
   parameters?: VolumeControlParameters
 }
 
-type Node =
+export type Node =
   | Adder
   | CompressorSidechain
   | EnvelopeDetectorPeak
