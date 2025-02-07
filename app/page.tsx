@@ -7,7 +7,7 @@ import Sidebar from "./components/Sidebar"
 import TopBar from "./components/TopBar"
 import { theme } from "./styles/theme"
 import { type Graph as GraphType, initialGraph, type Node } from "./types/graph"
-import { fetchGraph, subscribeToGraphUpdates } from "./utils/api"
+import { fetchGraph, subscribeToGraphUpdates, updateGraph as updateGraphInBackend } from "./utils/api"
 import { debounce } from "./utils/debounce"
 
 export default function Home() {
@@ -15,14 +15,14 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [graph, setGraph] = useState<GraphType>(initialGraph)
 
-  const updateGraph = useCallback((updatedGraph: GraphType) => {
+  const updateLocalGraph = useCallback((updatedGraph: GraphType) => {
     setGraph(updatedGraph)
   }, [])
 
   const syncGraphWithBackend = useCallback(
     debounce(async (graphToSync: GraphType) => {
       try {
-        updateGraph(graphToSync)
+        await updateGraphInBackend(graphToSync)
         console.log("Graph synced with backend")
       } catch (error) {
         console.error("Error syncing graph with backend.")
@@ -51,23 +51,23 @@ export default function Home() {
     const fetchInitialGraph = async () => {
       try {
         const data = await fetchGraph()
-        updateGraph(data)
+        updateLocalGraph(data)
       } catch (error) {
         console.error("Error fetching graph:", error)
-        updateGraph(initialGraph)
+        updateLocalGraph(initialGraph)
       }
     }
 
     fetchInitialGraph()
 
     const unsubscribe = subscribeToGraphUpdates((updatedGraph) => {
-      updateGraph(updatedGraph)
+      updateLocalGraph(updatedGraph)
     })
 
     return () => {
       unsubscribe()
     }
-  }, [updateGraph])
+  }, [updateLocalGraph])
 
   return (
     <div className={`flex flex-col h-screen ${theme.fonts.body} ${theme.colors.background}`}>

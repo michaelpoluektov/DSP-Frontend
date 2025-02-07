@@ -63,8 +63,9 @@ export default function Sidebar({ isOpen, graph, onNodeUpdate }: SidebarProps) {
                 className={`mt-2 ${theme.spacing.sm} ${theme.colors.secondary} ${theme.rounded} ${theme.borderWidth} ${theme.colors.border} ${theme.shadow}`}
               >
                 {"config" in node && <ConfigRenderer config={node.config} />}
-                {"parameters" in node && (
+                {"parameters" in node && node.parameters && node.op_type !== "ParametricEq" && (
                   <ParametersRenderer
+                    nodeType={node.op_type}
                     parameters={node.parameters}
                     onParameterChange={(paramName, value) =>
                       handleParameterChange(node.placement.name, paramName, value)

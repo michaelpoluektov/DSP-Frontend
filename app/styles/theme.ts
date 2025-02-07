@@ -2,7 +2,7 @@ export const theme = {
   colors: {
     background: "bg-white",
     primary: "bg-white",
-    secondary: "bg-gray-100",
+    secondary: "bg-gray-50",
     tertiary: "bg-gray-50",
     text: {
       primary: "text-gray-900",
@@ -10,10 +10,24 @@ export const theme = {
       tertiary: "text-gray-500",
     },
     button: {
-      primary: "bg-gray-100 hover:bg-gray-200",
-      secondary: "bg-white hover:bg-gray-100",
+      primary: "bg-gray-50 hover:bg-gray-100",
+      secondary: "bg-white hover:bg-gray-50",
     },
-    border: "border-gray-200",
+    border: "border-gray-100",
+    controls: {
+      boolean: {
+        active: "bg-[#00B6B0]",
+        inactive: "bg-gray-200",
+        focus: "ring-[#00B6B0]/30",
+      },
+      slider: {
+        track: {
+          active: "bg-[#00B6B0]",
+          inactive: "bg-white",
+        },
+        thumb: "accent-[#00B6B0]"
+      }
+    }
   },
   fonts: {
     body: "font-sans",
@@ -30,7 +44,7 @@ export const theme = {
   shadow: "shadow-md",
   borderWidth: "border",
   emphasis: {
-    background: "bg-gray-100",
+    background: "bg-gray-50",
     padding: "px-3 py-1",
   },
   textEffect: {
