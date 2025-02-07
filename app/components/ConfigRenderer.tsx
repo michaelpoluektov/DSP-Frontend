@@ -23,11 +23,11 @@ function formatValue(value: any): string {
 
 function ConfigValue({ name, value }: { name: string; value: any }) {
   return (
-    <div className="flex items-start gap-2 py-1">
-      <span className={`${theme.colors.text.primary} text-xs font-medium min-w-[100px]`}>
+    <div className="flex items-start justify-between gap-2 py-1">
+      <span className={`${theme.colors.text.primary} text-xs font-medium shrink-0`}>
         {name}:
       </span>
-      <span className={`${theme.colors.text.secondary} text-xs font-mono break-all`}>
+      <span className={`${theme.colors.text.secondary} text-xs font-mono break-all text-right`}>
         {formatValue(value)}
       </span>
     </div>
@@ -41,7 +41,7 @@ export default function ConfigRenderer({ config }: ConfigRendererProps) {
 
   return (
     <div
-      className={`${theme.colors.tertiary} ${theme.spacing.sm} ${theme.rounded} ${theme.borderWidth} ${theme.colors.border}`}
+      className={`${theme.colors.tertiary} ${theme.spacing.sm} ${theme.rounded} ${theme.borderWidth} ${theme.colors.border} border-2`}
     >
       <h4 className={`${theme.fonts.heading} ${theme.colors.text.primary} text-sm mb-2`}>Config</h4>
       <div className="space-y-1">

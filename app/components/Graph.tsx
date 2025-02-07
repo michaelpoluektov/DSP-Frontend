@@ -3,9 +3,10 @@ import type { Graph as GraphType } from "../types/graph"
 
 interface GraphProps {
   graph: GraphType
+  isBottomContainerOpen?: boolean
 }
 
-export default function Graph({ graph }: GraphProps) {
+export default function Graph({ graph, isBottomContainerOpen = false }: GraphProps) {
   return (
     <div className={`flex-1 ${theme.colors.primary} ${theme.spacing.md} overflow-auto scrollbar-hidden relative`}>
       <h2
@@ -13,13 +14,11 @@ export default function Graph({ graph }: GraphProps) {
       >
         {graph.name}
       </h2>
-      <div
-        className={`${theme.colors.secondary} ${theme.spacing.lg} ${theme.rounded} ${theme.borderWidth} ${theme.colors.border} ${theme.shadow} min-h-[300px]`}
-      >
+      <div className="flex-1 min-h-[300px] relative">
         <p className={`${theme.colors.text.secondary}`}>Graph visualization placeholder</p>
       </div>
       <div
-        className={`absolute bottom-4 right-4 ${theme.colors.secondary} ${theme.spacing.md} ${theme.rounded} ${theme.borderWidth} ${theme.colors.border} ${theme.shadow} max-w-xs`}
+        className={`absolute ${isBottomContainerOpen ? 'bottom-36' : 'bottom-4'} right-4 bg-white/90 backdrop-blur-sm ${theme.spacing.md} ${theme.rounded} ${theme.borderWidth} ${theme.colors.border} ${theme.shadow} max-w-xs transition-all duration-200 ease-in-out hover:scale-105`}
       >
         <h3 className={`${theme.fonts.heading} ${theme.colors.text.primary} text-sm mb-2`}>Graph Info</h3>
         <p className={`${theme.colors.text.secondary} text-xs mb-1`}>Nodes: {graph.nodes.length}</p>

@@ -16,12 +16,16 @@ export default function SliderParameter({ value, onChange, ...props }: SliderPar
   // Convert between linear and logarithmic scales
   const toLogScale = (value: number) => {
     if (!useLogScale) return value
-    return Math.log(value) / Math.log(max) * max
+    // Ensure we don't take log of zero or negative numbers
+    const minPositive = Math.max(min, 0.000001) // Small positive number to avoid log(0)
+    const safeValue = Math.max(value, minPositive)
+    return Math.log10(safeValue / minPositive) / Math.log10(max / minPositive) * max
   }
 
   const fromLogScale = (value: number) => {
     if (!useLogScale) return value
-    return Math.exp(value / max * Math.log(max))
+    const minPositive = Math.max(min, 0.000001)
+    return minPositive * Math.pow(max / minPositive, value / max)
   }
 
   // Update input value when prop value changes
@@ -72,7 +76,7 @@ export default function SliderParameter({ value, onChange, ...props }: SliderPar
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
-          className={`w-6 min-w-[4rem] ${theme.colors.primary} ${theme.colors.text.primary} ${theme.borderWidth} ${theme.colors.border} ${theme.rounded} px-1 py-0.5 text-xs text-right`}
+          className={`w-6 min-w-[4rem] ${theme.colors.primary} ${theme.colors.text.primary} ${theme.borderWidth} ${theme.colors.border} ${theme.rounded} px-1 py-0.5 text-xs text-right focus:outline-none focus:ring-2 focus:ring-[#00B6B0]/30 focus:border-[#00B6B0]`}
         />
       </div>
     </BaseParameter>

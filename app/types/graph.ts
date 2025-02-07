@@ -52,7 +52,7 @@ type SwitchParameters = {
   position: number
 }
 
-type BiquadFilterType =
+export type BiquadFilterType =
   | { type: "allpass"; filter_freq: number; q_factor: number }
   | { type: "bandpass"; filter_freq: number; bw: number }
   | { type: "bandstop"; filter_freq: number; bw: number }
@@ -150,7 +150,7 @@ type NoiseSuppressorExpander = {
   parameters?: CompressorSidechainParameters
 }
 
-type ParametricEq = {
+export type ParametricEq = {
   placement: NodePlacement
   op_type: "ParametricEq"
   parameters?: ParametricEqParameters
@@ -311,6 +311,27 @@ export const initialGraph: Graph = {
         thread: 3,
       },
     },
+    {
+      op_type: "ParametricEq",
+      parameters: {
+        filters: [
+          { type: "bypass" },
+          { type: "bypass" },
+          { type: "bypass" },
+          { type: "bypass" },
+          { type: "bypass" },
+          { type: "bypass" },
+          { type: "bypass" },
+          { type: "bypass" },
+        ],
+      },
+      placement: {
+        input: [19, 20],
+        output: [21, 22],
+        name: "StereoEQ",
+        thread: 4,
+      },
+    },
   ],
   input: {
     name: "audio_in",
@@ -320,7 +341,7 @@ export const initialGraph: Graph = {
   },
   output: {
     name: "audio_out",
-    input: [19, 20],
+    input: [21, 22],
     channels: 2,
   },
 }

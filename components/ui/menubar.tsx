@@ -4,7 +4,7 @@ import * as React from "react"
 import * as MenubarPrimitive from "@radix-ui/react-menubar"
 import { Check, ChevronRight, Circle } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/styles/utils"
 
 const MenubarMenu = MenubarPrimitive.Menu
 
@@ -194,7 +194,7 @@ const MenubarSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <MenubarPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-muted", className)}
+    className={cn("-mx-1 my-0.5 h-px bg-muted", className)}
     {...props}
   />
 ))

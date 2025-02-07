@@ -1,5 +1,9 @@
 export const theme = {
   colors: {
+    xmos: {
+      teal: "#00B6B0",
+      lightTeal: "#E5F7F6"  // Light version of the teal color for backgrounds/borders
+    },
     background: "bg-white",
     primary: "bg-white",
     secondary: "bg-gray-50",
@@ -13,10 +17,10 @@ export const theme = {
       primary: "bg-gray-50 hover:bg-gray-100",
       secondary: "bg-white hover:bg-gray-50",
     },
-    border: "border-gray-100",
+    border: "border-[#E5F7F6]",  // Using XMOS light teal
     controls: {
       boolean: {
-        active: "bg-[#00B6B0]",
+        active: "bg-[#00B6B0]",  // Using XMOS teal
         inactive: "bg-gray-200",
         focus: "ring-[#00B6B0]/30",
       },
