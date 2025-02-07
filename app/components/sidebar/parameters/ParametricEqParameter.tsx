@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import { theme } from "@/styles/theme"
 import BaseParameter, { BaseParameterProps } from "./BaseParameter"
 import { Slider } from "@/components/ui/slider"
@@ -25,8 +24,6 @@ const filterTypes = [
   "notch",
   "peaking",
 ] as const
-
-const defaultFilter: BiquadFilterType = { type: "bypass" }
 
 interface ParameterSliderProps {
   label: string
