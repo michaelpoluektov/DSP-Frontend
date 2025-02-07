@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { ChevronRight, ChevronDown } from "lucide-react"
-import { theme } from "../styles/theme"
-import type { Graph, Node, BiquadFilterType } from "../types/graph"
+import { theme } from "../../styles/theme"
+import type { Graph, Node, BiquadFilterType } from "../../types/graph"
 import ConfigRenderer from "./ConfigRenderer"
 import ParametersRenderer from "./ParametersRenderer"
 

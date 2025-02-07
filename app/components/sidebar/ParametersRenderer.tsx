@@ -1,10 +1,10 @@
-import { theme } from "../styles/theme"
-import { parameterConfigs, ParameterConfig } from "../utils/parameterTypes"
+import { theme } from "../../styles/theme"
+import { parameterConfigs, ParameterConfig } from "../../utils/parameterTypes"
 import SliderParameter from "./parameters/SliderParameter"
 import IntegerParameter from "./parameters/IntegerParameter"
 import BooleanParameter from "./parameters/BooleanParameter"
 import ParametricEqParameter from "./parameters/ParametricEqParameter"
-import { BiquadFilterType } from "../types/graph"
+import { BiquadFilterType } from "../../types/graph"
 
 interface ParametersRendererProps {
   nodeType: string

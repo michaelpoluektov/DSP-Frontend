@@ -14,40 +14,41 @@ export type ParameterConfig = {
 // Helper to create parameter configs
 const createParamConfig = (config: ParameterConfig): ParameterConfig => config
 
+// Factory functions for common parameter types
+const createGainParameter = (overrides?: Partial<ParameterConfig>): ParameterConfig => ({
+  type: 'slider',
+  min: -60,
+  max: 12,
+  step: 0.1,
+  default: 0,
+  title: 'Gain',
+  description: 'Gain in dB',
+  ...overrides
+})
+
+const createTimeParameter = (
+  defaults: { min: number; max: number; default: number },
+  overrides?: Partial<ParameterConfig>
+): ParameterConfig => ({
+  type: 'slider',
+  min: defaults.min,
+  max: defaults.max,
+  step: defaults.min,  // Step is same as min for time parameters
+  default: defaults.default,
+  useLogScale: true,
+  ...overrides
+})
+
 // Define parameter configurations
 export const parameterConfigs: Record<string, Record<string, ParameterConfig>> = {
   Mixer: {
-    gain_db: createParamConfig({
-      type: 'slider',
-      min: -60,
-      max: 12,
-      step: 0.1,
-      default: 0,
-      title: 'Gain',
-      description: 'Gain in dB'
-    })
+    gain_db: createGainParameter()
   },
   FixedGain: {
-    gain_db: createParamConfig({
-      type: 'slider',
-      min: -60,
-      max: 12,
-      step: 0.1,
-      default: 0,
-      title: 'Gain',
-      description: 'Gain in dB'
-    })
+    gain_db: createGainParameter()
   },
   VolumeControl: {
-    gain_db: createParamConfig({
-      type: 'slider',
-      min: -60,
-      max: 12,
-      step: 0.1,
-      default: 0,
-      title: 'Gain',
-      description: 'Gain in dB'
-    }),
+    gain_db: createGainParameter(),
     mute_state: createParamConfig({
       type: 'boolean',
       default: false,
@@ -95,26 +96,14 @@ export const parameterConfigs: Record<string, Record<string, ParameterConfig>> =
       title: 'Threshold',
       description: 'Threshold in dB'
     }),
-    attack_t: createParamConfig({
-      type: 'slider',
-      min: 0.001,
-      max: 1,
-      step: 0.001,
-      default: 0.005,
-      useLogScale: true,
-      title: 'Attack',
-      description: 'Attack time in seconds'
-    }),
-    release_t: createParamConfig({
-      type: 'slider',
-      min: 0.01,
-      max: 2,
-      step: 0.01,
-      default: 0.12,
-      useLogScale: true,
-      title: 'Release',
-      description: 'Release time in seconds'
-    })
+    attack_t: createTimeParameter(
+      { min: 0.001, max: 1, default: 0.005 },
+      { title: 'Attack', description: 'Attack time in seconds' }
+    ),
+    release_t: createTimeParameter(
+      { min: 0.01, max: 2, default: 0.12 },
+      { title: 'Release', description: 'Release time in seconds' }
+    )
   },
   NoiseSuppressorExpander: {
     ratio: createParamConfig({
@@ -136,70 +125,34 @@ export const parameterConfigs: Record<string, Record<string, ParameterConfig>> =
       title: 'Threshold',
       description: 'Threshold in dB'
     }),
-    attack_t: createParamConfig({
-      type: 'slider',
-      min: 0.001,
-      max: 1,
-      step: 0.001,
-      default: 0.005,
-      useLogScale: true,
-      title: 'Attack',
-      description: 'Attack time in seconds'
-    }),
-    release_t: createParamConfig({
-      type: 'slider',
-      min: 0.01,
-      max: 2,
-      step: 0.01,
-      default: 0.12,
-      useLogScale: true,
-      title: 'Release',
-      description: 'Release time in seconds'
-    })
+    attack_t: createTimeParameter(
+      { min: 0.001, max: 1, default: 0.005 },
+      { title: 'Attack', description: 'Attack time in seconds' }
+    ),
+    release_t: createTimeParameter(
+      { min: 0.01, max: 2, default: 0.12 },
+      { title: 'Release', description: 'Release time in seconds' }
+    )
   },
   EnvelopeDetectorPeak: {
-    attack_t: createParamConfig({
-      type: 'slider',
-      min: 0.001,
-      max: 1,
-      step: 0.001,
-      default: 0.005,
-      useLogScale: true,
-      title: 'Attack',
-      description: 'Attack time in seconds'
-    }),
-    release_t: createParamConfig({
-      type: 'slider',
-      min: 0.01,
-      max: 2,
-      step: 0.01,
-      default: 0.12,
-      useLogScale: true,
-      title: 'Release',
-      description: 'Release time in seconds'
-    })
+    attack_t: createTimeParameter(
+      { min: 0.001, max: 1, default: 0.005 },
+      { title: 'Attack', description: 'Attack time in seconds' }
+    ),
+    release_t: createTimeParameter(
+      { min: 0.01, max: 2, default: 0.12 },
+      { title: 'Release', description: 'Release time in seconds' }
+    )
   },
   EnvelopeDetectorRMS: {
-    attack_t: createParamConfig({
-      type: 'slider',
-      min: 0.001,
-      max: 1,
-      step: 0.001,
-      default: 0.005,
-      useLogScale: true,
-      title: 'Attack',
-      description: 'Attack time in seconds'
-    }),
-    release_t: createParamConfig({
-      type: 'slider',
-      min: 0.01,
-      max: 2,
-      step: 0.01,
-      default: 0.12,
-      useLogScale: true,
-      title: 'Release',
-      description: 'Release time in seconds'
-    })
+    attack_t: createTimeParameter(
+      { min: 0.001, max: 1, default: 0.005 },
+      { title: 'Attack', description: 'Attack time in seconds' }
+    ),
+    release_t: createTimeParameter(
+      { min: 0.01, max: 2, default: 0.12 },
+      { title: 'Release', description: 'Release time in seconds' }
+    )
   },
   ReverbPlateStereo: {
     predelay: createParamConfig({

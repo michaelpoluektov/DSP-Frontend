@@ -1,5 +1,5 @@
 import { Menu } from "lucide-react"
-import { theme } from "../styles/theme"
+import { commonStyles } from "../styles/common"
 
 interface TopBarProps {
   onToggleSidebar: () => void
@@ -8,16 +8,14 @@ interface TopBarProps {
 export default function TopBar({ onToggleSidebar }: TopBarProps) {
   return (
     <div
-      className={`${theme.colors.primary} ${theme.colors.text.primary} ${theme.spacing.md} flex justify-between items-center ${theme.borderWidth} ${theme.colors.border} border-t-0 border-x-0 ${theme.shadow}`}
+      className={`${commonStyles.container.primary} flex justify-between items-center border-t-0 border-x-0`}
     >
-      <h1
-        className={`${theme.fonts.title} ${theme.colors.text.primary} ${theme.emphasis.background} ${theme.emphasis.padding} ${theme.rounded} ${theme.textEffect.shadow}`}
-      >
+      <h1 className={commonStyles.text.title}>
         DSP Tool
       </h1>
       <button
         onClick={onToggleSidebar}
-        className={`${theme.colors.button.secondary} ${theme.rounded} ${theme.spacing.sm} ${theme.shadow}`}
+        className={commonStyles.button.icon}
       >
         <Menu size={24} />
       </button>

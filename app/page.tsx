@@ -1,10 +1,10 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import BottomContainer from "./components/BottomContainer"
+import BottomContainer from "./components/bottom-container"
 import Graph from "./components/Graph"
 import LoadingScreen from "./components/LoadingScreen"
-import Sidebar from "./components/Sidebar"
+import Sidebar from "./components/sidebar"
 import TopBar from "./components/TopBar"
 import { theme } from "./styles/theme"
 import { type Graph as GraphType, type Node } from "./types/graph"

@@ -67,7 +67,7 @@ export type BiquadFilterType =
   | { type: "notch"; filter_freq: number; q_factor: number }
   | { type: "peaking"; filter_freq: number; q_factor: number; boost_db: number }
 
-type ParametricEqParameters = {
+export type ParametricEqParameters = {
   filters: [
     BiquadFilterType,
     BiquadFilterType,

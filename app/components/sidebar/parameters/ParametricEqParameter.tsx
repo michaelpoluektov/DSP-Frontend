@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { theme } from "../../styles/theme"
+import { theme } from "@/styles/theme"
 import BaseParameter, { BaseParameterProps } from "./BaseParameter"
-import { Slider } from "../ui/slider"
-import { BiquadFilterType } from "../../types/graph"
+import { Slider } from "@/components/ui/slider"
+import { BiquadFilterType } from "@/types/graph"
 import { Plus, Minus } from "lucide-react"
 
 interface ParametricEqParameterProps extends Omit<BaseParameterProps<BiquadFilterType[]>, 'value' | 'onChange'> {

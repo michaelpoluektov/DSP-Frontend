@@ -1,17 +1,4 @@
-import type { BiquadFilterType } from "../types/graph"
-
-export interface ParametricEqParameters {
-  filters: [
-    BiquadFilterType,
-    BiquadFilterType,
-    BiquadFilterType,
-    BiquadFilterType,
-    BiquadFilterType,
-    BiquadFilterType,
-    BiquadFilterType,
-    BiquadFilterType,
-  ]
-}
+import type { BiquadFilterType, ParametricEqParameters } from "../types/graph"
 
 interface FrequencyResponse {
   frequencies: number[]

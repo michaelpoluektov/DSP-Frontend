@@ -1,5 +1,5 @@
-import { theme } from "../../styles/theme"
-import { ParameterConfig } from "../../utils/parameterTypes"
+import { theme } from "@/styles/theme"
+import { ParameterConfig } from "@/utils/parameterTypes"
 
 export interface BaseParameterProps<T extends number | boolean | any[]> {
   name: string

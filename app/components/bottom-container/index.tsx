@@ -1,9 +1,9 @@
 import { ChevronUp, ChevronDown } from "lucide-react"
-import { theme } from "../styles/theme"
-import { Graph, Node, ParametricEq } from "../types/graph"
+import { theme } from "../../styles/theme"
+import { Graph, Node, ParametricEq } from "../../types/graph"
 import { useState, useEffect } from "react"
 import EQResponseGraph from "./EQResponseGraph"
-import { calculateEQResponse } from "../utils/eqResponse"
+import { calculateEQResponse } from "../../utils/eqResponse"
 
 interface BottomContainerProps {
   isOpen: boolean

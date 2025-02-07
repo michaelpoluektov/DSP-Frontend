@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { theme } from "../../styles/theme"
+import { theme } from "@/styles/theme"
 import BaseParameter, { BaseParameterProps } from "./BaseParameter"
-import { Slider } from "../ui/slider"
+import { Slider } from "@/components/ui/slider"
 
 interface SliderParameterProps extends Omit<BaseParameterProps<number>, 'value' | 'onChange'> {
   value: number

@@ -1,4 +1,4 @@
-import { theme } from "../../styles/theme"
+import { theme } from "@/styles/theme"
 import BaseParameter, { BaseParameterProps } from "./BaseParameter"
 
 interface BooleanParameterProps extends Omit<BaseParameterProps<boolean>, 'value' | 'onChange'> {
