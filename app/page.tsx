@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { ReactFlowProvider } from "reactflow"
 import BottomContainer from "./components/bottom-container"
 import Graph from "./components/Graph"
 import LoadingScreen from "./components/LoadingScreen"
@@ -16,6 +17,7 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [graph, setGraph] = useState<GraphType | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedNode, setSelectedNode] = useState<string | null>(null)
 
   const updateLocalGraph = useCallback((updatedGraph: GraphType) => {
     setGraph(updatedGraph)
@@ -50,6 +52,11 @@ export default function Home() {
     [syncGraphWithBackend],
   )
 
+  const handleNodeSelect = useCallback((nodeName: string) => {
+    setSelectedNode(nodeName)
+    setIsSidebarOpen(true)
+  }, [])
+
   useEffect(() => {
     const fetchInitialGraph = async () => {
       try {
@@ -81,13 +88,20 @@ export default function Home() {
     <div className={`flex flex-col h-screen ${theme.fonts.body} ${theme.colors.background} animate-fade-in`}>
       <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 flex flex-col">
-          <Graph graph={graph} isBottomContainerOpen={isBottomContainerOpen} />
+        <div className="flex-1 flex flex-col min-w-0">
+          <ReactFlowProvider>
+            <Graph 
+              graph={graph} 
+              onNodeSelect={handleNodeSelect}
+              onParametricEqOpen={() => setIsBottomContainerOpen(true)}
+            />
+          </ReactFlowProvider>
           <BottomContainer
             isOpen={isBottomContainerOpen}
             onToggle={() => setIsBottomContainerOpen(!isBottomContainerOpen)}
             graph={graph}
             onNodeUpdate={handleNodeUpdate}
+            isSidebarOpen={isSidebarOpen}
           />
         </div>
         <Sidebar 
@@ -95,6 +109,7 @@ export default function Home() {
           graph={graph} 
           onNodeUpdate={handleNodeUpdate}
           onParametricEqOpen={() => setIsBottomContainerOpen(true)}
+          selectedNode={selectedNode}
         />
       </div>
     </div>

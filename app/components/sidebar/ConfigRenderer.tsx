@@ -43,7 +43,6 @@ export default function ConfigRenderer({ config }: ConfigRendererProps) {
     <div
       className={`${theme.colors.tertiary} ${theme.spacing.sm} ${theme.rounded} ${theme.borderWidth} ${theme.colors.border} border-2`}
     >
-      <h4 className={`${theme.fonts.heading} ${theme.colors.text.primary} text-sm mb-2`}>Config</h4>
       <div className="space-y-1">
         {Object.entries(config).map(([key, value]) => (
           <ConfigValue key={key} name={key} value={value} />

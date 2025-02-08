@@ -10,9 +10,10 @@ interface BottomContainerProps {
   onToggle: () => void
   graph: Graph
   onNodeUpdate: (updatedNode: Node) => void
+  isSidebarOpen: boolean
 }
 
-export default function BottomContainer({ isOpen, onToggle, graph, onNodeUpdate }: BottomContainerProps) {
+export default function BottomContainer({ isOpen, onToggle, graph, onNodeUpdate, isSidebarOpen }: BottomContainerProps) {
   const [activeTab, setActiveTab] = useState<string | null>(null)
   
   // Find all parametric EQ nodes
@@ -40,6 +41,11 @@ export default function BottomContainer({ isOpen, onToggle, graph, onNodeUpdate 
         });
     }
   }, [activeNode])
+
+  // Trigger a resize event when the sidebar state changes
+  useEffect(() => {
+    window.dispatchEvent(new Event('resize'))
+  }, [isSidebarOpen])
 
   return (
     <div
@@ -86,4 +92,3 @@ export default function BottomContainer({ isOpen, onToggle, graph, onNodeUpdate 
     </div>
   )
 }
-

@@ -103,10 +103,16 @@ const createChartOptions = (yAxisConfig: {
         color: "#666",
         padding: 0,
         font: { size: 10 },
+        maxTicksLimit: 7,
+        align: 'end',
         ...yAxisConfig.ticks
       },
       min: yAxisConfig.min,
-      max: yAxisConfig.max
+      max: yAxisConfig.max,
+      afterFit: (scale) => {
+        // Force a minimum width for the y-axis to ensure alignment
+        scale.width = 50;
+      }
     }
   }
 })
@@ -258,7 +264,8 @@ export default function EQResponseGraph({ node }: EQResponseGraphProps) {
     ticks: {
       stepSize: 8,
       callback(this: Scale<CoreScaleOptions>, value: number | string) {
-        return `${value}dB`;
+        // Ensure consistent width by padding with spaces
+        return `${value}dB   `;
       }
     }
   })
@@ -270,11 +277,12 @@ export default function EQResponseGraph({ node }: EQResponseGraphProps) {
       stepSize: Math.PI/2,
       callback(this: Scale<CoreScaleOptions>, value: number | string) {
         const v = Number(value);
-        if (v === -Math.PI) return '-π';
-        if (v === -Math.PI/2) return '-π/2';
-        if (v === 0) return '0';
-        if (v === Math.PI/2) return 'π/2';
-        if (v === Math.PI) return 'π';
+        // Ensure consistent width by padding with spaces
+        if (v === -Math.PI) return '-π    ';
+        if (v === -Math.PI/2) return '-π/2  ';
+        if (v === 0) return '0     ';
+        if (v === Math.PI/2) return 'π/2   ';
+        if (v === Math.PI) return 'π     ';
         return '';
       }
     }
@@ -284,8 +292,8 @@ export default function EQResponseGraph({ node }: EQResponseGraphProps) {
   const phaseData = createChartData(phasePoints, "#FF6B6B")
 
   return (
-    <div className="flex gap-4 h-full">
-      <div className="flex-1 h-full relative">
+    <div className="flex flex-col lg:flex-row gap-0 lg:gap-4 h-full">
+      <div className="h-[calc(50%-0.05rem)] lg:h-full lg:flex-1 relative">
         <ResponseLabel title="Magnitude Response" isCalculating={isCalculating} isResizing={isResizing} />
         {isResizing ? (
           <LoadingPlaceholder />
@@ -293,7 +301,7 @@ export default function EQResponseGraph({ node }: EQResponseGraphProps) {
           <Line data={magnitudeData} options={magnitudeOptions} key={windowWidth} />
         )}
       </div>
-      <div className="flex-1 h-full relative">
+      <div className="h-[calc(50%-0.0rem)] lg:h-full lg:flex-1 relative">
         <ResponseLabel title="Phase Response" isCalculating={isCalculating} isResizing={isResizing} />
         {isResizing ? (
           <LoadingPlaceholder />

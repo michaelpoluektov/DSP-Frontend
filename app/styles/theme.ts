@@ -36,20 +36,20 @@ export const theme = {
   fonts: {
     body: "font-sans",
     heading: "font-sans font-semibold",
-    title: "text-2xl font-bold tracking-tight",
-    subtitle: "text-xl font-semibold",
+    title: "text-xl font-bold tracking-tight",
+    subtitle: "text-l font-sans",
   },
   spacing: {
-    sm: "p-2",
-    md: "p-4",
-    lg: "p-6",
+    sm: "p-1",
+    md: "p-1",
+    lg: "p-1",
   },
   rounded: "rounded-lg",
   shadow: "shadow-md",
   borderWidth: "border",
   emphasis: {
     background: "bg-gray-50",
-    padding: "px-3 py-1",
+    padding: "px-2 py-1",
   },
   textEffect: {
     shadow: "drop-shadow-md",

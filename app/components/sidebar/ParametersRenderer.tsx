@@ -43,7 +43,6 @@ export default function ParametersRenderer({ nodeType, parameters, onParameterCh
     <div
       className={`${theme.colors.tertiary} ${theme.spacing.sm} ${theme.rounded} ${theme.borderWidth} ${theme.colors.border}`}
     >
-      <h4 className={`${theme.fonts.heading} ${theme.colors.text.primary} text-sm mb-2`}>Parameters</h4>
       {Object.entries(parameters).map(([name, value]) => {
         const config = configs[name]
         const paramType = getParameterType(value, config)
