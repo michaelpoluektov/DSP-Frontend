@@ -57,7 +57,7 @@ export default function Sidebar({ isOpen, graph, onNodeUpdate, onParametricEqOpe
         className={`${isOpen ? "opacity-100" : "opacity-0"} transition-opacity duration-150 ${isOpen ? "" : "pointer-events-none"}`}
       >
         <h4
-          className={`${theme.fonts.subtitle} ${theme.colors.text.primary} ${theme.emphasis.background} ${theme.emphasis.padding} ${theme.rounded} ${theme.textEffect.shadow} mb-1`}
+          className={`${theme.fonts.subtitle} ${theme.colors.text.primary} ${theme.emphasis.background} ${theme.emphasis.padding} ${theme.rounded} ${theme.textEffect.shadow} border ${theme.colors.border} mb-1`}
         >
           Options
         </h4>

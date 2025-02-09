@@ -11,10 +11,6 @@ type CompressorPlacement = Omit<NodePlacement, "input" | "output"> & {
   output: [number]
 }
 
-type ForkPlacement = Omit<NodePlacement, "input"> & {
-  input: [number]
-}
-
 type MixerPlacement = Omit<NodePlacement, "output"> & {
   output: [number]
 }
@@ -33,10 +29,6 @@ type CompressorSidechainParameters = {
 
 type FixedGainParameters = {
   gain_db: number
-}
-
-type ForkConfig = {
-  count: number
 }
 
 type MixerParameters = {
@@ -132,12 +124,6 @@ type FixedGain = {
   parameters?: FixedGainParameters
 }
 
-type Fork = {
-  placement: ForkPlacement
-  op_type: "Fork"
-  config?: ForkConfig
-}
-
 type Mixer = {
   placement: MixerPlacement
   op_type: "Mixer"
@@ -187,7 +173,6 @@ export type Node =
   | EnvelopeDetectorPeak
   | EnvelopeDetectorRMS
   | FixedGain
-  | Fork
   | Mixer
   | NoiseSuppressorExpander
   | ParametricEq
@@ -196,75 +181,37 @@ export type Node =
   | SwitchStereo
   | VolumeControl
 
-type Input = {
+export type Input = {
   name: string
-  output: number[]
-  channels: number
-  fs: number
+  output: [number] | [number, number]
 }
 
-type Output = {
+export type Output = {
   name: string
-  input: number[]
-  channels: number
-  fs?: number | null
+  input: [number] | [number, number]
 }
 
 export type Graph = {
   name: string
+  fs: number
   nodes: Node[]
-  input: Input
-  output: Output
+  inputs: Input[]
+  outputs: Output[]
 }
 
 export const initialGraph: Graph = {
   name: "Stereo Compressor with Volume Control",
+  fs: 48000,
   nodes: [
-    {
-      op_type: "Fork",
-      config: {
-        count: 1,
-      },
-      placement: {
-        input: [0],
-        output: [10, 11],
-        name: "LeftFork",
-        thread: 0,
-      },
-    },
-    {
-      op_type: "Fork",
-      config: {
-        count: 1,
-      },
-      placement: {
-        input: [1],
-        output: [12, 13],
-        name: "RightFork",
-        thread: 0,
-      },
-    },
     {
       op_type: "Mixer",
       parameters: {
         gain_db: 0,
       },
       placement: {
-        input: [11, 13],
-        output: [14],
+        input: [0, 1],
+        output: [2],
         name: "DetectionMixer",
-        thread: 0,
-      },
-    },
-    {
-      op_type: "Fork",
-      config: {
-        count: 1,
-      },
-      placement: {
-        input: [14],
-        output: [15, 16],
-        name: "DetectionFork",
         thread: 0,
       },
     },
@@ -277,8 +224,8 @@ export const initialGraph: Graph = {
         release_t: 0.12,
       },
       placement: {
-        input: [10, 15],
-        output: [17],
+        input: [0, 2],
+        output: [3],
         name: "LeftCompressor",
         thread: 1,
       },
@@ -292,8 +239,8 @@ export const initialGraph: Graph = {
         release_t: 0.12,
       },
       placement: {
-        input: [12, 16],
-        output: [18],
+        input: [1, 2],
+        output: [4],
         name: "RightCompressor",
         thread: 2,
       },
@@ -305,8 +252,8 @@ export const initialGraph: Graph = {
         mute_state: 0,
       },
       placement: {
-        input: [17, 18],
-        output: [19, 20],
+        input: [3, 4],
+        output: [5, 6],
         name: "StereoVolume",
         thread: 3,
       },
@@ -326,23 +273,24 @@ export const initialGraph: Graph = {
         ],
       },
       placement: {
-        input: [19, 20],
-        output: [21, 22],
+        input: [5, 6],
+        output: [7, 8],
         name: "StereoEQ",
         thread: 4,
       },
     },
   ],
-  input: {
-    name: "audio_in",
-    output: [0, 1],
-    channels: 2,
-    fs: 48000,
-  },
-  output: {
-    name: "audio_out",
-    input: [21, 22],
-    channels: 2,
-  },
+  inputs: [
+    {
+      name: "audio_in",
+      output: [0, 1],
+    }
+  ],
+  outputs: [
+    {
+      name: "audio_out",
+      input: [7, 8],
+    }
+  ]
 }
 

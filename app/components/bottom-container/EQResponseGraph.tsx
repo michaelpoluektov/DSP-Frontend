@@ -289,7 +289,7 @@ export default function EQResponseGraph({ node }: EQResponseGraphProps) {
   })
 
   const magnitudeData = createChartData(dataPoints, "#00B6B0")
-  const phaseData = createChartData(phasePoints, "#FF6B6B")
+  const phaseData = createChartData(phasePoints, "#00E6DF")
 
   return (
     <div className="flex flex-col lg:flex-row gap-0 lg:gap-4 h-full">

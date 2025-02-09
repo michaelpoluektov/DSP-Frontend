@@ -6,7 +6,7 @@ import BottomContainer from "./components/bottom-container"
 import Graph from "./components/Graph"
 import LoadingScreen from "./components/LoadingScreen"
 import Sidebar from "./components/sidebar"
-import TopBar from "./components/TopBar"
+import TopBar from "./components/TopBar/index"
 import { theme } from "./styles/theme"
 import { type Graph as GraphType, type Node } from "./types/graph"
 import { fetchGraph, subscribeToGraphUpdates, updateGraph as updateGraphInBackend } from "./utils/api"
@@ -86,7 +86,9 @@ export default function Home() {
 
   return (
     <div className={`flex flex-col h-screen ${theme.fonts.body} ${theme.colors.background} animate-fade-in`}>
-      <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      {
+      <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} graph={graph} />
+      }
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 flex flex-col min-w-0">
           <ReactFlowProvider>
