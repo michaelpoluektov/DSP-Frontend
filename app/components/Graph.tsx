@@ -16,7 +16,7 @@ import dagre from "dagre";
 import { theme } from "../styles/theme";
 import type { Graph as GraphType, Node as DSPNode } from "../types/graph";
 
-// Helper function to interpolate between two colors
+// Helper function to interpolate between two colors.
 const interpolateColor = (thread: number, maxThread: number = 5) => {
   if (thread === undefined) return "white";
 
@@ -39,7 +39,7 @@ const interpolateColor = (thread: number, maxThread: number = 5) => {
   return `rgb(${r}, ${g}, ${b})`;
 };
 
-// Custom node component
+// Custom node component.
 const BaseNode = ({ data }: NodeProps) => {
   const bgColor = interpolateColor(data.thread);
   return (
@@ -58,25 +58,27 @@ const BaseNode = ({ data }: NodeProps) => {
           id={`input-${index}`}
           className="w-1.5 h-1.5"
           style={{
-            left: `calc(50% + ${(index - (data.inputs.length - 1) / 2) * 16}px)`
+            left: `calc(50% + ${(index - (data.inputs.length - 1) / 2) * 16}px)`,
           }}
         />
       ))}
 
-      {/* Title/Header with background color and border */}
+      {/* Title/Header */}
       <div
         style={{
           backgroundColor: bgColor,
-          borderBottom: `1px solid ${theme.colors.border.split(' ')[1]}`,
+          borderBottom: `1px solid ${theme.colors.border.split(" ")[1]}`,
           padding: "2px",
           borderTopLeftRadius: "inherit",
           borderTopRightRadius: "inherit",
         }}
       >
-        <span className="font-medium text-sm block text-center">{data.name}</span>
+        <span className="font-medium text-sm block text-center">
+          {data.name}
+        </span>
       </div>
 
-      {/* Footer with white background and node type */}
+      {/* Footer */}
       <div
         style={{
           backgroundColor: "#fff",
@@ -113,7 +115,7 @@ const BaseNode = ({ data }: NodeProps) => {
           id={`output-${index}`}
           className="w-1.5 h-1.5"
           style={{
-            left: `calc(50% + ${(index - (data.outputs.length - 1) / 2) * 16}px)`
+            left: `calc(50% + ${(index - (data.outputs.length - 1) / 2) * 16}px)`,
           }}
         />
       ))}
@@ -121,12 +123,12 @@ const BaseNode = ({ data }: NodeProps) => {
   );
 };
 
-// Define nodeTypes outside of the component to prevent unnecessary re-renders
+// Define nodeTypes outside the component to keep the reference stable.
 const nodeTypes = {
   dspNode: BaseNode,
 };
 
-// Helper function that uses Dagre to layout nodes automatically.
+// Helper function that uses Dagre to automatically layout nodes.
 const getLayoutedElements = (
   nodes: FlowNode[],
   edges: Edge[],
@@ -134,17 +136,16 @@ const getLayoutedElements = (
 ) => {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
-  
-  dagreGraph.setGraph({ 
+  dagreGraph.setGraph({
     rankdir: direction,
     nodesep: 50,
     ranksep: 35,
     edgesep: 10,
   });
 
-  // Update these dimensions to match the actual rendered size
-  const nodeWidth = 140;  // Changed from 172 to match the width in BaseNode
-  const nodeHeight = 64;  // Changed from 32 to account for the full node height including header and footer
+  // These dimensions should match your node size.
+  const nodeWidth = 140;
+  const nodeHeight = 64;
 
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -159,7 +160,7 @@ const getLayoutedElements = (
     const nodeWithPosition = dagreGraph.node(node.id);
     return {
       ...node,
-      // Center the node by subtracting half the width/height
+      // Center the node by subtracting half the width/height.
       position: {
         x: nodeWithPosition.x - nodeWidth / 2,
         y: nodeWithPosition.y - nodeHeight / 2,
@@ -183,10 +184,22 @@ export default memo(
     onParametricEqOpen?: () => void;
   }) {
     const { fitView } = useReactFlow();
-    
-    // Add ref for the container
     const containerRef = useRef<HTMLDivElement>(null);
 
+    // Memoize inline objects to ensure stable references.
+    const defaultEdgeOptions = useMemo(
+      () => ({
+        type: "step",
+        style: { strokeWidth: 1.5 },
+      }),
+      []
+    );
+
+    const proOptions = useMemo(() => ({ hideAttribution: true }), []);
+
+    const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 0.5 }), []);
+
+    // Node click handler.
     const handleNodeClick = useCallback(
       (event: React.MouseEvent, node: FlowNode) => {
         if (onNodeSelect && node.id !== "input" && node.id !== "output") {
@@ -202,9 +215,10 @@ export default memo(
       [onNodeSelect, onParametricEqOpen, graph.nodes]
     );
 
+    // Create nodes.
     const rawNodes: FlowNode[] = useMemo(() => {
       return [
-        // Input nodes
+        // Input nodes.
         ...graph.inputs.map((input) => ({
           id: `input-${input.name}`,
           type: "dspNode",
@@ -216,7 +230,7 @@ export default memo(
             outputs: input.output,
           },
         })),
-        // DSP nodes
+        // DSP nodes.
         ...graph.nodes.map((node: DSPNode) => ({
           id: node.placement.name,
           type: "dspNode",
@@ -231,7 +245,7 @@ export default memo(
             thread: node.placement.thread,
           },
         })),
-        // Output nodes
+        // Output nodes.
         ...graph.outputs.map((output) => ({
           id: `output-${output.name}`,
           type: "dspNode",
@@ -246,6 +260,7 @@ export default memo(
       ];
     }, [graph]);
 
+    // Create edges.
     const rawEdges: Edge[] = useMemo(() => {
       const allEdges: Edge[] = [];
 
@@ -321,12 +336,12 @@ export default memo(
       return allEdges;
     }, [graph]);
 
-    // Apply the Dagre layout to all nodes and edges.
+    // Apply Dagre layout.
     const { nodes, edges } = useMemo(() => {
       return getLayoutedElements(rawNodes, rawEdges, "TB");
     }, [rawNodes, rawEdges]);
 
-    // Handle both graph changes and container resizes
+    // Fit view on container resize or graph changes.
     useEffect(() => {
       const container = containerRef.current;
       if (!container) return;
@@ -337,7 +352,6 @@ export default memo(
 
       resizeObserver.observe(container);
 
-      // Initial fit view for graph changes
       const timeoutId = setTimeout(() => {
         fitView({ padding: 0.2, duration: 200 });
       }, 50);
@@ -368,16 +382,13 @@ export default memo(
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypes}
-            defaultEdgeOptions={{
-              type: "step",
-              style: { strokeWidth: 1.5 },
-            }}
+            defaultEdgeOptions={defaultEdgeOptions}
             onNodeClick={handleNodeClick}
             fitView
             minZoom={0.1}
             maxZoom={1.5}
-            defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
-            proOptions={{ hideAttribution: true }}
+            defaultViewport={defaultViewport}
+            proOptions={proOptions}
           >
             <Background />
             <Controls />
@@ -400,9 +411,7 @@ export default memo(
   (prevProps, nextProps) => {
     const prevGraph = prevProps.graph;
     const nextGraph = nextProps.graph;
-
-    // Only re-render if structural properties change
-    const structuralEqual = 
+    const structuralEqual =
       prevGraph.name === nextGraph.name &&
       prevGraph.fs === nextGraph.fs &&
       prevGraph.inputs.length === nextGraph.inputs.length &&
@@ -414,8 +423,10 @@ export default memo(
           node.placement.name === nextNode.placement.name &&
           node.placement.thread === nextNode.placement.thread &&
           node.op_type === nextNode.op_type &&
-          JSON.stringify(node.placement.input) === JSON.stringify(nextNode.placement.input) &&
-          JSON.stringify(node.placement.output) === JSON.stringify(nextNode.placement.output)
+          JSON.stringify(node.placement.input) ===
+            JSON.stringify(nextNode.placement.input) &&
+          JSON.stringify(node.placement.output) ===
+            JSON.stringify(nextNode.placement.output)
         );
       });
 

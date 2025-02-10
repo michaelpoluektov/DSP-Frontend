@@ -35,3 +35,23 @@ export function subscribeToGraphUpdates(callback: (graph: Graph) => void) {
   return () => eventSource.close()
 }
 
+export async function processAudio(audioFiles: File[]): Promise<Blob> {
+  const formData = new FormData()
+  audioFiles.forEach((file) => {
+    formData.append('files', file)
+  })
+
+  const response = await fetch(`${API_BASE_URL}/api/graph/audio?session_id=${SESSION_ID}`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!response.ok) {
+    throw new Error("Failed to process audio files")
+  }
+
+  const outputZip = await response.blob()
+  console.log("Received processed audio outputs")
+  return outputZip
+}
+
