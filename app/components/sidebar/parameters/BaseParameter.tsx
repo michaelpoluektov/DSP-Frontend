@@ -1,14 +1,14 @@
 import { theme } from "@/styles/theme"
 import { ParameterConfig } from "@/utils/parameterTypes"
 
-export interface BaseParameterProps<T extends number | boolean | any[]> {
+export interface BaseParameterProps<T = any> {
   name: string
   value: T
   config: ParameterConfig
   onChange: (value: T) => void
 }
 
-export default function BaseParameter<T extends number | boolean | any[]>({ 
+export default function BaseParameter<T>({ 
   name, 
   value, 
   config, 

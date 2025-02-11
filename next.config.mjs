@@ -7,6 +7,10 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  basePath: '/dsp',
+  output: 'export',
+  assetPrefix: '/dsp/',
+  trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
