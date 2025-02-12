@@ -16,7 +16,7 @@ import {
   CoreScaleOptions
 } from "chart.js"
 import { calculateEQResponse } from "@/utils/eqResponse"
-import type { ParametricEq, ParametricEqParameters } from "@/types/graph"
+import type { ParametricEq, BiquadFilterType, ParametricEqParameters } from "@/types/graph"
 import { debounce } from "@/utils/debounce"
 import { commonStyles } from "@/styles/common"
 
@@ -119,7 +119,12 @@ const createChartOptions = (yAxisConfig: {
 
 // Component interfaces
 interface EQResponseGraphProps {
-  node: ParametricEq
+  node: ParametricEq | { 
+    parameters?: { 
+      filter_type?: BiquadFilterType 
+    };
+    op_type: "Biquad";
+  }
 }
 
 export default function EQResponseGraph({ node }: EQResponseGraphProps) {
@@ -128,61 +133,34 @@ export default function EQResponseGraph({ node }: EQResponseGraphProps) {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
   const [response, setResponse] = useState<Awaited<ReturnType<typeof calculateEQResponse>> | null>(null);
 
+  // Create an array of 8 bypass filters
+  const bypassFilters: [BiquadFilterType, ...BiquadFilterType[]] = [
+    { type: "bypass" },
+    { type: "bypass" },
+    { type: "bypass" },
+    { type: "bypass" },
+    { type: "bypass" },
+    { type: "bypass" },
+    { type: "bypass" },
+    { type: "bypass" }
+  ];
+
   // Memoize the filters to prevent unnecessary recalculations
-  const filters = useMemo(() => node.parameters?.filters, [
-    // Only include the properties we care about from each filter
-    node.parameters?.filters?.map(filter => {
-      const base = { type: filter.type };
-      switch (filter.type) {
-        case "bypass":
-          return base;
-        case "lowpass":
-        case "highpass":
-        case "notch":
-        case "allpass":
-          return {
-            ...base,
-            filter_freq: filter.filter_freq,
-            q_factor: filter.q_factor
-          };
-        case "bandpass":
-        case "bandstop":
-          return {
-            ...base,
-            filter_freq: filter.filter_freq,
-            bw: filter.bw
-          };
-        case "peaking":
-        case "lowshelf":
-        case "highshelf":
-        case "constant_q":
-          return {
-            ...base,
-            filter_freq: filter.filter_freq,
-            q_factor: filter.q_factor,
-            boost_db: filter.boost_db
-          };
-        case "gain":
-          return {
-            ...base,
-            gain_db: filter.gain_db
-          };
-        case "linkwitz":
-          return {
-            ...base,
-            f0: filter.f0,
-            fp: filter.fp,
-            q0: filter.q0,
-            qp: filter.qp
-          };
-        default:
-          return base;
-      }
-    })
-  ]);
+  const filters = useMemo(() => {
+    if (node.op_type === "ParametricEq") {
+      return node.parameters?.filters;
+    } else if (node.parameters?.filter_type) {
+      // For Biquad nodes, use the filter in the first slot and bypass the rest
+      return [
+        node.parameters.filter_type,
+        ...bypassFilters.slice(1)
+      ] as ParametricEqParameters["filters"];
+    }
+    return bypassFilters as ParametricEqParameters["filters"];
+  }, [node]);
 
   const debouncedCalculate = useCallback(
-    debounce(async (filters: ParametricEqParameters['filters']) => {
+    debounce(async (filters: ParametricEqParameters["filters"]) => {
       try {
         setIsCalculating(true);
         const newResponse = await calculateEQResponse({ filters });

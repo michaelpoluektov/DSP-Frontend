@@ -15,22 +15,43 @@ interface ParameterSliderProps {
   step: number
   onChange: (value: number) => void
   unit?: string
+  useLogScale?: boolean
 }
 
-const ParameterSlider = ({ label, value, min, max, step, onChange, unit }: ParameterSliderProps) => (
-  <div className="mb-2">
-    <div className="flex justify-between items-center mb-1">
-      <span className="text-xs text-gray-400">{label}</span>
-      <span className="text-xs text-gray-400">{value}{unit}</span>
+const ParameterSlider = ({ label, value, min, max, step, onChange, unit, useLogScale }: ParameterSliderProps) => {
+  const toLogScale = (value: number) => {
+    return Math.log(value / min) / Math.log(max / min)
+  }
+
+  const fromLogScale = (value: number) => {
+    return min * Math.exp(value * Math.log(max / min))
+  }
+
+  const sliderValue = useLogScale ? toLogScale(value) * (max - min) + min : value
+  const handleChange = (newValue: number) => {
+    if (useLogScale) {
+      const normalizedValue = (newValue - min) / (max - min)
+      onChange(fromLogScale(normalizedValue))
+    } else {
+      onChange(newValue)
+    }
+  }
+
+  return (
+    <div className="mb-2">
+      <div className="flex justify-between items-center mb-1">
+        <span className="text-xs text-gray-400">{label}</span>
+        <span className="text-xs text-gray-400">{Math.round(value * 100) / 100}{unit}</span>
+      </div>
+      <Slider
+        min={min} max={max} step={step}
+        value={[sliderValue]}
+        onValueChange={(values) => handleChange(values[0])}
+        className="w-full"
+      />
     </div>
-    <Slider
-      min={min} max={max} step={step}
-      value={[value]}
-      onValueChange={(values) => onChange(values[0])}
-      className="w-full"
-    />
-  </div>
-)
+  )
+}
 
 interface BiquadFilterControlProps {
   filter: BiquadFilterType
@@ -83,6 +104,7 @@ export function BiquadFilterControl({ filter, onChange, showTypeSelector = true 
               step={1}
               onChange={(value) => onChange({ ...filter, filter_freq: value })}
               unit="Hz"
+              useLogScale={true}
             />
             <ParameterSlider
               label="Q Factor"
@@ -106,6 +128,7 @@ export function BiquadFilterControl({ filter, onChange, showTypeSelector = true 
               step={1}
               onChange={(value) => onChange({ ...filter, filter_freq: value })}
               unit="Hz"
+              useLogScale={true}
             />
             <ParameterSlider
               label="Bandwidth"
@@ -131,6 +154,7 @@ export function BiquadFilterControl({ filter, onChange, showTypeSelector = true 
               step={1}
               onChange={(value) => onChange({ ...filter, filter_freq: value })}
               unit="Hz"
+              useLogScale={true}
             />
             <ParameterSlider
               label="Q Factor"
@@ -162,6 +186,7 @@ export function BiquadFilterControl({ filter, onChange, showTypeSelector = true 
               step={1}
               onChange={(value) => onChange({ ...filter, f0: value })}
               unit="Hz"
+              useLogScale={true}
             />
             <ParameterSlider
               label="Q Factor"
@@ -179,6 +204,7 @@ export function BiquadFilterControl({ filter, onChange, showTypeSelector = true 
               step={1}
               onChange={(value) => onChange({ ...filter, fp: value })}
               unit="Hz"
+              useLogScale={true}
             />
             <ParameterSlider
               label="Peak Q Factor"

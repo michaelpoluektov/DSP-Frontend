@@ -93,11 +93,10 @@ function writeString(view: DataView, offset: number, string: string) {
 }
 
 interface TopBarProps {
-  onToggleSidebar: () => void
   graph: Graph
 }
 
-export default function TopBar({ onToggleSidebar, graph }: TopBarProps) {
+export default function TopBar({ graph }: TopBarProps) {
   // Store recordings as a map of input name to audio blob
   const [recordings, setRecordings] = useState<Record<string, Blob>>({})
   
@@ -299,6 +298,11 @@ export default function TopBar({ onToggleSidebar, graph }: TopBarProps) {
     }
   }, [outputAudioElements])
 
+  const handleFileUpload = useCallback(async (inputName: string, file: Blob) => {
+    // Add the file directly to recordings
+    setRecordings(prev => ({ ...prev, [inputName]: file }))
+  }, [])
+
   return (
     <div
       className={`${commonStyles.container.primary} flex justify-between items-center border-t-0 border-x-0 py-2 ${theme.colors.border}`}
@@ -319,6 +323,7 @@ export default function TopBar({ onToggleSidebar, graph }: TopBarProps) {
               onPlay={() => startPlayback(input.name)}
               onStop={() => stopPlayback(input.name)}
               isPlaying={!!playingInputs[input.name]}
+              onFileUpload={(file) => handleFileUpload(input.name, file)}
             />
           ))}
 
@@ -335,13 +340,6 @@ export default function TopBar({ onToggleSidebar, graph }: TopBarProps) {
           ))}
         </div>
       </div>
-      
-      <button
-        onClick={onToggleSidebar}
-        className={commonStyles.button.icon}
-      >
-        <Menu size={24} />
-      </button>
     </div>
   )
 } 

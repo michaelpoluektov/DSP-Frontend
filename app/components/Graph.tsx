@@ -40,13 +40,22 @@ const interpolateColor = (thread: number, maxThread: number = 5) => {
 };
 
 // Custom node component.
-const BaseNode = ({ data }: NodeProps) => {
+const BaseNode = ({ data, id, selected }: NodeProps) => {
   const bgColor = interpolateColor(data.thread);
+  
   return (
     <div
       className={`shadow-lg rounded-lg border relative ${theme.colors.border}`}
       style={{
         width: "140px",
+        border: selected ? `2px solid ${theme.colors.xmos.teal}` : undefined,
+        boxShadow: selected 
+          ? `0 0 0 2px ${theme.colors.xmos.teal},
+             0 0 10px 2px ${theme.colors.xmos.teal}40,
+             0 0 20px 4px ${theme.colors.xmos.teal}20` 
+          : undefined,
+        transition: 'box-shadow 0.2s ease-in-out, border 0.2s ease-in-out',
+        backgroundColor: '#fff',
       }}
     >
       {/* Input handles */}
@@ -178,10 +187,12 @@ export default memo(
     graph,
     onNodeSelect,
     onParametricEqOpen,
+    selectedNode,
   }: {
     graph: GraphType;
     onNodeSelect?: (nodeName: string) => void;
     onParametricEqOpen?: () => void;
+    selectedNode?: string | null;
   }) {
     const { fitView } = useReactFlow();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -199,23 +210,26 @@ export default memo(
 
     const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 0.5 }), []);
 
-    // Node click handler.
-    const handleNodeClick = useCallback(
-      (event: React.MouseEvent, node: FlowNode) => {
-        if (onNodeSelect && node.id !== "input" && node.id !== "output") {
-          onNodeSelect(node.id);
-          const dspNode = graph.nodes.find(
-            (n) => n.placement.name === node.id
-          );
-          if (dspNode?.op_type === "ParametricEq" && onParametricEqOpen) {
-            onParametricEqOpen();
+    // Handle both node clicks and selection changes
+    const handleSelectionChange = useCallback(
+      ({ nodes: selectedNodes }: { nodes: FlowNode[] }) => {
+        if (selectedNodes.length === 1 && onNodeSelect) {
+          const selectedId = selectedNodes[0].id;
+          if (selectedId !== "input" && selectedId !== "output") {
+            onNodeSelect(selectedId);
+            const dspNode = graph.nodes.find(
+              (n) => n.placement.name === selectedId
+            );
+            if (dspNode?.op_type === "ParametricEq" && onParametricEqOpen) {
+              onParametricEqOpen();
+            }
           }
         }
       },
       [onNodeSelect, onParametricEqOpen, graph.nodes]
     );
 
-    // Create nodes.
+    // Create nodes with selection state
     const rawNodes: FlowNode[] = useMemo(() => {
       return [
         // Input nodes.
@@ -223,6 +237,8 @@ export default memo(
           id: `input-${input.name}`,
           type: "dspNode",
           position: { x: 0, y: 0 },
+          selected: `input-${input.name}` === selectedNode,
+          selectable: true,
           data: {
             name: input.name,
             op_type: "Input",
@@ -235,6 +251,8 @@ export default memo(
           id: node.placement.name,
           type: "dspNode",
           position: { x: 0, y: 0 },
+          selected: node.placement.name === selectedNode,
+          selectable: true,
           data: {
             name: node.placement.name,
             op_type: node.op_type,
@@ -250,6 +268,8 @@ export default memo(
           id: `output-${output.name}`,
           type: "dspNode",
           position: { x: 0, y: 0 },
+          selected: `output-${output.name}` === selectedNode,
+          selectable: true,
           data: {
             name: output.name,
             op_type: "Output",
@@ -258,7 +278,7 @@ export default memo(
           },
         })),
       ];
-    }, [graph]);
+    }, [graph, selectedNode]);
 
     // Create edges.
     const rawEdges: Edge[] = useMemo(() => {
@@ -383,15 +403,21 @@ export default memo(
             edges={edges}
             nodeTypes={nodeTypes}
             defaultEdgeOptions={defaultEdgeOptions}
-            onNodeClick={handleNodeClick}
+            onSelectionChange={handleSelectionChange}
+            onNodeClick={(_, node) => {
+              if (onNodeSelect) onNodeSelect(node.id);
+            }}
             fitView
             minZoom={0.1}
             maxZoom={1.5}
             defaultViewport={defaultViewport}
             proOptions={proOptions}
+            nodesFocusable={true}
+            nodesConnectable={false}
+            elementsSelectable={true}
           >
             <Background />
-            <Controls />
+            <Controls showZoom={true} showFitView={true} showInteractive={false} />
             <Panel position="top-left" className="!bg-transparent">
               <MiniMap
                 style={{
@@ -409,6 +435,11 @@ export default memo(
     );
   },
   (prevProps, nextProps) => {
+    // Check if selectedNode has changed
+    if (prevProps.selectedNode !== nextProps.selectedNode) {
+      return false;
+    }
+
     const prevGraph = prevProps.graph;
     const nextGraph = nextProps.graph;
     const structuralEqual =

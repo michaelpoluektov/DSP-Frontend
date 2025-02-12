@@ -170,7 +170,7 @@ type VolumeControl = {
 // Add missing types
 type BiquadParameters = {
 	filter_type: BiquadFilterType;
-	slew_rate?: number; // default: 1.0, min: >0.0
+	slew_rate?: number; // default: 1.0, min: >=0.1, max 100, use log scale
 };
 
 type Biquad = {

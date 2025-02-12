@@ -39,20 +39,6 @@ const createTimeParameter = (
 	...overrides
 });
 
-// Add frequency parameter helper
-const createFrequencyParameter = (
-	defaults: { min: number; max: number; default: number },
-	overrides?: Partial<ParameterConfig>
-): ParameterConfig => ({
-	type: 'slider',
-	min: defaults.min,
-	max: defaults.max,
-	step: 1,
-	default: defaults.default,
-	useLogScale: true,
-	...overrides
-});
-
 // Define parameter configurations
 export const parameterConfigs: Record<string, Record<string, ParameterConfig>> = {
 	Mixer: {
@@ -367,5 +353,18 @@ export const parameterConfigs: Record<string, Record<string, ParameterConfig>> =
 			{ min: 0.01, max: 5, default: 0.1 },
 			{ title: 'Release', description: 'Release time in seconds' }
 		)
+	},
+	Biquad: {
+		slew_rate: createParamConfig({
+			type: 'slider',
+			min: 0.1,
+			max: 100,
+			step: 0.1,
+			default: 1.0,
+			useLogScale: true,
+			title: 'Slew Rate',
+			description: 'Filter parameter slew rate'
+		}),
+		// The filter_type parameter is handled separately through a custom component
 	}
 };

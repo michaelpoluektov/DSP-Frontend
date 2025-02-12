@@ -1,33 +1,34 @@
 import { useState, useEffect } from "react"
-import { ChevronRight, ChevronDown } from "lucide-react"
+import { ChevronRight, ChevronDown, Menu } from "lucide-react"
 import { theme } from "../../styles/theme"
+import { commonStyles } from "../../styles/common"
 import type { Graph, Node, BiquadFilterType } from "../../types/graph"
 import ConfigRenderer from "./ConfigRenderer"
 import ParametersRenderer from "./ParametersRenderer"
 
 interface SidebarProps {
-  isOpen: boolean
   graph: Graph
   onNodeUpdate: (updatedNode: Node) => void
   onParametricEqOpen?: () => void
   selectedNode?: string | null
+  onNodeSelect?: (nodeName: string | null) => void
 }
 
-export default function Sidebar({ isOpen, graph, onNodeUpdate, onParametricEqOpen, selectedNode }: SidebarProps) {
+export default function Sidebar({ graph, onNodeUpdate, selectedNode, onNodeSelect }: SidebarProps) {
+  const [isOpen, setIsOpen] = useState(true)
   const [openNode, setOpenNode] = useState<string | null>(null)
 
   useEffect(() => {
     if (selectedNode) {
       setOpenNode(selectedNode)
+      setIsOpen(true) // Auto-open sidebar when a node is selected
     }
   }, [selectedNode])
 
   const toggleNode = (name: string) => {
-    const node = graph.nodes.find((n) => n.placement.name === name)
-    if (node?.op_type === "ParametricEq" && onParametricEqOpen) {
-      onParametricEqOpen()
-    }
-    setOpenNode((prev) => (prev === name ? null : name))
+    const newOpenNode = openNode === name ? null : name
+    setOpenNode(newOpenNode)
+    onNodeSelect?.(newOpenNode)
   }
 
   const handleParameterChange = (nodeName: string, paramName: string, value: any) => {
@@ -56,11 +57,19 @@ export default function Sidebar({ isOpen, graph, onNodeUpdate, onParametricEqOpe
       <div
         className={`${isOpen ? "opacity-100" : "opacity-0"} transition-opacity duration-150 ${isOpen ? "" : "pointer-events-none"}`}
       >
-        <h4
-          className={`${theme.fonts.subtitle} ${theme.colors.text.primary} ${theme.emphasis.background} ${theme.emphasis.padding} ${theme.rounded} ${theme.textEffect.shadow} border ${theme.colors.border} mb-1`}
-        >
-          Options
-        </h4>
+        <div className="flex items-center justify-between mb-1">
+          <h4
+            className={`flex-1 ${theme.fonts.subtitle} ${theme.colors.text.primary} ${theme.emphasis.background} ${theme.emphasis.padding} ${theme.rounded} ${theme.textEffect.shadow} border ${theme.colors.border}`}
+          >
+            Options
+          </h4>
+          <button
+            onClick={() => setIsOpen(false)}
+            className={`${commonStyles.button.icon} ml-2 ${theme.emphasis.background} ${theme.emphasis.padding} ${theme.rounded} ${theme.textEffect.shadow} border ${theme.colors.border}`}
+          >
+            <Menu size={24} />
+          </button>
+        </div>
         {graph.nodes.map((node) => (
           <div key={node.placement.name} className="mb-0.5">
             <button

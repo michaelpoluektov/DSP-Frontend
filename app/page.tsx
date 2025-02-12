@@ -7,14 +7,13 @@ import Graph from "./components/Graph"
 import LoadingScreen from "./components/LoadingScreen"
 import Sidebar from "./components/sidebar"
 import TopBar from "./components/TopBar/index"
+import DownloadButton from "./components/DownloadButton"
 import { theme } from "./styles/theme"
 import { type Graph as GraphType, type Node } from "./types/graph"
 import { fetchGraph, subscribeToGraphUpdates, updateGraph as updateGraphInBackend } from "./utils/api"
 import { debounce } from "./utils/debounce"
 
 export default function Home() {
-  const [isBottomContainerOpen, setIsBottomContainerOpen] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [graph, setGraph] = useState<GraphType | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
@@ -52,10 +51,13 @@ export default function Home() {
     [syncGraphWithBackend],
   )
 
-  const handleNodeSelect = useCallback((nodeName: string) => {
+  const handleNodeSelect = useCallback((nodeName: string | null) => {
     setSelectedNode(nodeName)
-    setIsSidebarOpen(true)
   }, [])
+
+  // Get the currently selected node
+  const currentNode = graph?.nodes.find(node => node.placement.name === selectedNode)
+  const shouldShowBottomContainer = currentNode?.op_type === "ParametricEq" || currentNode?.op_type === "Biquad"
 
   useEffect(() => {
     const fetchInitialGraph = async () => {
@@ -86,34 +88,33 @@ export default function Home() {
 
   return (
     <div className={`flex flex-col h-screen ${theme.fonts.body} ${theme.colors.background} animate-fade-in`}>
-      {
-      <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} graph={graph} />
-      }
+      <TopBar graph={graph} />
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 flex flex-col min-w-0">
           <ReactFlowProvider>
-            <Graph 
-              graph={graph} 
+            <Graph
+              graph={graph}
               onNodeSelect={handleNodeSelect}
-              onParametricEqOpen={() => setIsBottomContainerOpen(true)}
+              selectedNode={selectedNode}
             />
           </ReactFlowProvider>
           <BottomContainer
-            isOpen={isBottomContainerOpen}
-            onToggle={() => setIsBottomContainerOpen(!isBottomContainerOpen)}
+            isOpen={shouldShowBottomContainer}
             graph={graph}
             onNodeUpdate={handleNodeUpdate}
-            isSidebarOpen={isSidebarOpen}
+            selectedNode={selectedNode}
+            onNodeSelect={handleNodeSelect}
           />
         </div>
         <Sidebar 
-          isOpen={isSidebarOpen} 
           graph={graph} 
           onNodeUpdate={handleNodeUpdate}
-          onParametricEqOpen={() => setIsBottomContainerOpen(true)}
           selectedNode={selectedNode}
+          onNodeSelect={handleNodeSelect}
         />
       </div>
+      <DownloadButton graph={graph} />
+      {isLoading && <LoadingScreen />}
     </div>
   )
 }

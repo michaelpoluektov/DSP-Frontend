@@ -5,6 +5,7 @@ import IntegerParameter from "./parameters/IntegerParameter"
 import BooleanParameter from "./parameters/BooleanParameter"
 import ParametricEqParameter from "./parameters/ParametricEqParameter"
 import { BiquadFilterType } from "../../types/graph"
+import BiquadParameter from "./parameters/BiquadParameter"
 
 interface ParametersRendererProps {
   nodeType: string
@@ -14,6 +15,11 @@ interface ParametersRendererProps {
 
 // Helper function to determine parameter type based on value and config
 function getParameterType(value: any, config: ParameterConfig | undefined): string {
+  // Add check for single BiquadFilter
+  if (typeof value === 'object' && 'type' in value) {
+    return 'biquad'
+  }
+
   // Special case for ParametricEq filters
   if (Array.isArray(value) && value.every(v => typeof v === 'object' && 'type' in v)) {
     return 'parametric_eq'
@@ -38,6 +44,11 @@ function getParameterType(value: any, config: ParameterConfig | undefined): stri
 
 export default function ParametersRenderer({ nodeType, parameters, onParameterChange }: ParametersRendererProps) {
   const configs = parameterConfigs[nodeType] || {}
+  
+  // Don't render anything if there are no parameters and no configs
+  if (Object.keys(parameters).length === 0 && Object.keys(configs).length === 0) {
+    return null
+  }
 
   return (
     <div
@@ -54,6 +65,19 @@ export default function ParametersRenderer({ nodeType, parameters, onParameterCh
           type: paramType
         }
         const finalConfig = config || defaultConfig
+
+        // Add case for single BiquadFilter
+        if (paramType === 'biquad') {
+          return (
+            <BiquadParameter
+              key={name}
+              name={name}
+              value={value as BiquadFilterType}
+              config={finalConfig}
+              onChange={(newValue) => onParameterChange(name, newValue)}
+            />
+          )
+        }
 
         // Special case for ParametricEq filters
         if (nodeType === "ParametricEq" && name === "filters") {
@@ -98,16 +122,6 @@ export default function ParametersRenderer({ nodeType, parameters, onParameterCh
                 config={finalConfig}
                 onChange={(newValue) => onParameterChange(name, newValue)}
               />
-            )
-          case 'unknown':
-            // For unknown types, render a disabled text representation
-            return (
-              <div key={name} className={`${theme.colors.primary} ${theme.borderWidth} ${theme.colors.border} ${theme.rounded} px-2 py-1 mb-2`}>
-                <div className={`${theme.colors.text.secondary} text-xs`}>{name}</div>
-                <div className={`${theme.colors.text.primary} text-xs font-mono mt-1`}>
-                  {JSON.stringify(value)}
-                </div>
-              </div>
             )
           default:
             return null

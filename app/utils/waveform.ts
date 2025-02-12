@@ -28,6 +28,15 @@ export async function drawWaveform(
 	const amp = (rect.height - 8) / 2; // Slightly reduced amplitude for gradient space
 	const centerY = rect.height / 2;
 
+	// Find global maximum amplitude
+	let globalMax = 0;
+	for (let i = 0; i < data.length; i++) {
+		const absValue = Math.abs(data[i]);
+		if (absValue > globalMax) {
+			globalMax = absValue;
+		}
+	}
+
 	// Create gradient
 	const gradient = ctx.createLinearGradient(0, 4, 0, rect.height - 4);
 	gradient.addColorStop(0, color);
@@ -51,7 +60,7 @@ export async function drawWaveform(
 			count++;
 		}
 
-		const magnitude = sum / count; // Average magnitude for this segment
+		const magnitude = (sum / count) / globalMax; // Normalize by global maximum
 		const x = i;
 		const y = centerY + ((max + min) / 2) * amp; // Use average of min/max for smoother line
 
@@ -67,14 +76,14 @@ export async function drawWaveform(
 	for (let i = 0; i < points.length; i++) {
 		const point = points[i];
 		const prevPoint = points[i - 1] || point;
-		const magnitude = Math.min(1, point.magnitude * 2);
+		const magnitude = point.magnitude;
 		const y = centerY - magnitude * amp;
 
 		if (i === 0) {
 			ctx.moveTo(point.x, y);
 		} else {
 			const cpX = prevPoint.x + (point.x - prevPoint.x) / 2;
-			ctx.quadraticCurveTo(cpX, centerY - prevPoint.magnitude * 2 * amp, point.x, y);
+			ctx.quadraticCurveTo(cpX, centerY - prevPoint.magnitude * amp, point.x, y);
 		}
 	}
 
@@ -82,14 +91,14 @@ export async function drawWaveform(
 	for (let i = points.length - 1; i >= 0; i--) {
 		const point = points[i];
 		const prevPoint = points[i + 1] || point;
-		const magnitude = Math.min(1, point.magnitude * 2);
+		const magnitude = point.magnitude;
 		const y = centerY + magnitude * amp;
 
 		if (i === points.length - 1) {
 			ctx.lineTo(point.x, y);
 		} else {
 			const cpX = prevPoint.x + (point.x - prevPoint.x) / 2;
-			ctx.quadraticCurveTo(cpX, centerY + prevPoint.magnitude * 2 * amp, point.x, y);
+			ctx.quadraticCurveTo(cpX, centerY + prevPoint.magnitude * amp, point.x, y);
 		}
 	}
 
@@ -105,14 +114,14 @@ export async function drawWaveform(
 	for (let i = 0; i < points.length; i++) {
 		const point = points[i];
 		const prevPoint = points[i - 1] || point;
-		const magnitude = Math.min(1, point.magnitude * 2);
+		const magnitude = point.magnitude;
 		const y = centerY - magnitude * amp;
 
 		if (i === 0) {
 			ctx.moveTo(point.x, y);
 		} else {
 			const cpX = prevPoint.x + (point.x - prevPoint.x) / 2;
-			ctx.quadraticCurveTo(cpX, centerY - prevPoint.magnitude * 2 * amp, point.x, y);
+			ctx.quadraticCurveTo(cpX, centerY - prevPoint.magnitude * amp, point.x, y);
 		}
 	}
 	ctx.stroke();
@@ -122,14 +131,14 @@ export async function drawWaveform(
 	for (let i = points.length - 1; i >= 0; i--) {
 		const point = points[i];
 		const prevPoint = points[i + 1] || point;
-		const magnitude = Math.min(1, point.magnitude * 2);
+		const magnitude = point.magnitude;
 		const y = centerY + magnitude * amp;
 
 		if (i === points.length - 1) {
 			ctx.moveTo(point.x, y);
 		} else {
 			const cpX = prevPoint.x + (point.x - prevPoint.x) / 2;
-			ctx.quadraticCurveTo(cpX, centerY + prevPoint.magnitude * 2 * amp, point.x, y);
+			ctx.quadraticCurveTo(cpX, centerY + prevPoint.magnitude * amp, point.x, y);
 		}
 	}
 	ctx.stroke();
