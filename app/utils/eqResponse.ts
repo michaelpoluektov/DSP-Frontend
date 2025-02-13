@@ -80,11 +80,13 @@ export async function calculateEQResponse(
 	parameters: ParametricEqParameters,
 	sampleRate: number = 48000
 ): Promise<FrequencyResponse> {
-	// We'll use the Web Audio API to calculate the frequency response
-	const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-	const nBins = 512;
-
+	let audioContext: AudioContext | null = null;
+	
 	try {
+		// Create the AudioContext
+		audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+		const nBins = 512;
+
 		// Create frequency array (logarithmic scale from 20Hz to 20kHz)
 		const frequencies = new Float32Array(nBins);
 		for (let i = 0; i < nBins; i++) {
@@ -98,7 +100,7 @@ export async function calculateEQResponse(
 		// Process in chunks to avoid blocking the UI
 		const chunkSize = 64;
 		for (let chunk = 0; chunk < nBins; chunk += chunkSize) {
-			await new Promise((resolve) => setTimeout(resolve, 0)); // Yield to main thread
+			await new Promise((resolve) => setTimeout(resolve, 0));
 
 			for (let i = chunk; i < Math.min(chunk + chunkSize, nBins); i++) {
 				let hasActiveFilter = false;
@@ -106,12 +108,12 @@ export async function calculateEQResponse(
 				let totalPhase = 0;
 
 				// Process each filter
-				parameters.filters.forEach((filter) => {
+				for (const filter of parameters.filters) {
 					const specs = biquadFilterToSpec(filter);
 					const filterSpecs = Array.isArray(specs) ? specs : [specs];
 
-					filterSpecs.forEach((spec) => {
-						if (spec.type === 'bypass') return;
+					for (const spec of filterSpecs) {
+						if (spec.type === 'bypass') continue;
 
 						hasActiveFilter = true;
 						// Create a biquad filter node
@@ -133,8 +135,8 @@ export async function calculateEQResponse(
 						// Add to total response (in dB for magnitude, radians for phase)
 						totalMagnitude += 20 * Math.log10(magResponse[0] || 1e-10); // Prevent log of 0
 						totalPhase += phaseResponse[0];
-					});
-				});
+					}
+				}
 
 				// If all filters are bypassed, set magnitude to 0 dB (unity gain)
 				magnitudes[i] = hasActiveFilter ? totalMagnitude : 0;
@@ -148,6 +150,13 @@ export async function calculateEQResponse(
 			phases: Array.from(phases)
 		};
 	} finally {
-		audioContext.close();
+		// Always clean up the AudioContext
+		if (audioContext) {
+			try {
+				await audioContext.close();
+			} catch (error) {
+				console.error('Error closing AudioContext:', error);
+			}
+		}
 	}
 }

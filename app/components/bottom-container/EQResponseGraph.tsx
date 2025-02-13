@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useMemo } from "react"
+import React, { useEffect, useCallback, useState, useMemo, useRef } from "react"
 import { Line } from "react-chartjs-2"
 import {
   Chart as ChartJS,
@@ -127,11 +127,30 @@ interface EQResponseGraphProps {
   }
 }
 
+// Add type for debounced function
+type DebouncedFunction<T extends (...args: any[]) => any> = {
+  (...args: Parameters<T>): ReturnType<T>;
+  cancel: () => void;
+}
+
 export default function EQResponseGraph({ node }: EQResponseGraphProps) {
   const [isResizing, setIsResizing] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
   const [response, setResponse] = useState<Awaited<ReturnType<typeof calculateEQResponse>> | null>(null);
+  const isMounted = useRef(true);
+  const debouncedCalculateRef = useRef<DebouncedFunction<(filters: ParametricEqParameters["filters"]) => Promise<void>> | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      // Clean up any pending calculations
+      if (debouncedCalculateRef.current) {
+        debouncedCalculateRef.current.cancel();
+      }
+    };
+  }, []);
 
   // Create an array of 8 bypass filters
   const bypassFilters: [BiquadFilterType, ...BiquadFilterType[]] = [
@@ -159,37 +178,61 @@ export default function EQResponseGraph({ node }: EQResponseGraphProps) {
     return bypassFilters as ParametricEqParameters["filters"];
   }, [node]);
 
-  const debouncedCalculate = useCallback(
-    debounce(async (filters: ParametricEqParameters["filters"]) => {
+  // Create the debounced calculate function
+  useEffect(() => {
+    debouncedCalculateRef.current = debounce(async (filters: ParametricEqParameters["filters"]) => {
+      if (!isMounted.current) return;
       try {
         setIsCalculating(true);
         const newResponse = await calculateEQResponse({ filters });
-        setResponse(newResponse);
+        if (isMounted.current) {
+          setResponse(newResponse);
+        }
       } catch (error) {
         console.error('Error calculating EQ response:', error);
       } finally {
-        setIsCalculating(false);
+        if (isMounted.current) {
+          setIsCalculating(false);
+        }
       }
-    }, 100),
-    []
-  );
+    }, 100) as DebouncedFunction<(filters: ParametricEqParameters["filters"]) => Promise<void>>;
 
+    return () => {
+      if (debouncedCalculateRef.current) {
+        debouncedCalculateRef.current.cancel();
+      }
+    };
+  }, []);
+
+  // Handle filter changes
   useEffect(() => {
-    if (!filters) return;
-    debouncedCalculate(filters);
-  }, [filters, debouncedCalculate]);
+    if (!filters || !debouncedCalculateRef.current || !isMounted.current) return;
+    
+    debouncedCalculateRef.current(filters);
+    
+    return () => {
+      if (debouncedCalculateRef.current) {
+        debouncedCalculateRef.current.cancel();
+      }
+    };
+  }, [filters]);
 
+  // Handle resize events
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const handleResize = () => {
-      setIsResizing(true);
+      if (isMounted.current) {
+        setIsResizing(true);
+      }
     };
 
     const handleResizeEnd = debounce(() => {
-      setWindowWidth(window.innerWidth);
-      setIsResizing(false);
-    }, 250);
+      if (isMounted.current) {
+        setWindowWidth(window.innerWidth);
+        setIsResizing(false);
+      }
+    }, 250) as DebouncedFunction<() => void>;
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('resize', handleResizeEnd);
@@ -197,6 +240,10 @@ export default function EQResponseGraph({ node }: EQResponseGraphProps) {
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('resize', handleResizeEnd);
+      // Only try to cancel if the function exists and has a cancel method
+      if (typeof handleResizeEnd === 'function' && 'cancel' in handleResizeEnd) {
+        handleResizeEnd.cancel();
+      }
     };
   }, []);
 
