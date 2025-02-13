@@ -1,6 +1,6 @@
 import type { Graph } from '../types/graph';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 const API_BASE_SUFFIX = 'api/v1/dsp';
 
 function getSessionId(): string {
